@@ -305,7 +305,7 @@ async function sendApplication(payload) {
       <p class="booking-modal__hint">Після передпродажу — від 2 000 грн.</p>
       <p class="booking-modal__intro">Залиш контакти, щоб зафіксувати ціну. Юлія особисто зв’яжеться з тобою та допоможе оформити квиток.</p>
       <form class="booking-form" novalidate>
-        <label>Твоє ім’я <input name="name" type="text" autocomplete="name" minlength="2" maxlength="100" required placeholder="Як до тебе звертатися?"></label>
+        <label>Твоє ім’я та прізвище <input name="name" type="text" autocomplete="name" minlength="2" maxlength="100" required placeholder="Твоє ім’я та прізвище"></label>
         <label>Номер телефону <input name="phone" type="tel" autocomplete="tel" inputmode="tel" minlength="9" maxlength="25" required placeholder="+380 ..."></label>
         <label>Кількість квитків <select name="quantity" required>${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("")}</select></label>
         <div class="booking-form__total"><span>До оплати після підтвердження</span><strong data-booking-total>1 200 грн</strong></div>
@@ -398,11 +398,10 @@ async function sendApplication(payload) {
         phone,
         quantity: String(quantity),
       });
-      status.textContent =
-        "Дякуємо! Заявку надіслано. Юлія зв’яжеться з тобою.";
       form.reset();
       updateTotal();
-      setTimeout(close, 1100);
+      close();
+      showThankYou("ticket");
     } catch (error) {
       status.textContent = error.message || "Не вдалося надіслати заявку.";
     } finally {
@@ -410,6 +409,58 @@ async function sendApplication(payload) {
     }
   });
 })();
+
+// Confirmation windows appear only after Google Apps Script confirms delivery.
+const thankYouContent = {
+  ticket: `
+    <h2>Чудово! ❤️</h2>
+    <p>Твоя заявка на тренінг</p>
+    <p>«Заведи своє життя» вже у нас!</p>
+    <p><strong>Ти обрала спеціальну передпродажну пропозицію.</strong></p>
+    <p>Юлія особисто зв’яжеться з тобою за вказаним номером, щоб надати реквізити для оплати та узгодити оформлення квитків.</p>
+    <p>А поки збережи дату:</p>
+    <p><strong>30 січня 2027 року | Київ</strong></p>
+    <p>Попереду особливий день, нові знайомства, емоції та зустріч із жінками, які теж хочуть більшого від життя.</p>
+    <p>До зустрічі! ❤️</p>
+    <p><strong>«Заведи своє життя» - почни з того, щоб обрати себе.</strong></p>`,
+  excursion: `
+    <h2>Ти вже на крок ближче до знайомства! ❤️</h2>
+    <p>Дякую за твою цікавість до авторської гри «Важливий крок»!</p>
+    <p>Твоя заявка на безоплатну&nbsp; екскурсію по грі отримана.</p>
+    <p>Найближчим часом ми зв’яжемося з тобою, щоб узгодити деталі зустрічі та розповісти, як усе відбуватиметься.</p>
+    <p>На тебе чекає знайомство з Юлією Ублінських, можливість побачити психологічну гру зсередини, спробувати її на собі та відчути атмосферу майбутньої події «Заведи своє життя».</p>
+    <p><strong>Можеш поки що підписатись на Юлію&nbsp;</strong></p>
+    <p><a class="thank-you-modal__instagram" href="https://www.instagram.com/yuliaublinskykh?mdxt=M2hpbXBsdmNlNGtl" target="_blank" rel="noopener noreferrer" aria-label="Підписатися на Юлію в Instagram">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.7" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      <span>Підписатися в Instagram</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+    </a></p>`,
+};
+function showThankYou(kind) {
+  const dialog = document.createElement("div");
+  dialog.className = "booking-modal thank-you-modal";
+  dialog.innerHTML = `
+    <div class="booking-modal__backdrop" data-thankyou-close></div>
+    <section class="booking-modal__panel thank-you-modal__panel" role="dialog" aria-modal="true" aria-label="Підтвердження заявки" tabindex="-1">
+      <button class="booking-modal__close" type="button" data-thankyou-close aria-label="Закрити">×</button>
+      <div class="thank-you-modal__content">${thankYouContent[kind]}</div>
+    </section>`;
+  document.body.appendChild(dialog);
+  document.body.classList.add("booking-open");
+  const dismiss = () => {
+    dialog.remove();
+    document.body.classList.remove("booking-open");
+    document.removeEventListener("keydown", onKey);
+  };
+  const onKey = (event) => {
+    if (event.key === "Escape") dismiss();
+  };
+  dialog
+    .querySelectorAll("[data-thankyou-close]")
+    .forEach((el) => el.addEventListener("click", dismiss));
+  document.addEventListener("keydown", onKey);
+  dialog.querySelector(".booking-modal__close").focus();
+}
 
 // Free game excursion: a separate form, using the same Telegram credentials.
 (() => {
@@ -424,7 +475,7 @@ async function sendApplication(payload) {
       <button class="booking-modal__close" type="button" data-excursion-close aria-label="Закрити форму">×</button>
       <p class="booking-modal__eyebrow">АВТОРСЬКА ГРА «ВАЖЛИВИЙ КРОК»</p>
       <h2 id="excursion-title">ПОЗНАЙОМИМОСЯ <em>БЛИЖЧЕ?</em></h2>
-      <p class="booking-modal__intro">Запрошую тебе на безкоштовну екскурсію у світ гри «Важливий крок». Залиш свої контакти — ми зв’яжемося з тобою та розповімо про деталі зустрічі.</p>
+      <p class="booking-modal__intro">Запрошую тебе на безоплатну екскурсію у світ гри «Важливий крок». Залиш свої контакти — ми зв’яжемося з тобою та розповімо про деталі зустрічі.</p>
       <form class="booking-form excursion-form">
         <label>Ім’я <input name="firstName" type="text" autocomplete="given-name" minlength="2" maxlength="60" required placeholder="Твоє ім’я"></label>
         <label>Прізвище <input name="lastName" type="text" autocomplete="family-name" minlength="2" maxlength="60" required placeholder="Твоє прізвище"></label>
@@ -506,9 +557,9 @@ async function sendApplication(payload) {
     status.textContent = "Надсилаємо заявку…";
     try {
       await sendApplication({ kind: "excursion", firstName, lastName, phone });
-      status.textContent = "Дякуємо! Заявку надіслано. Ми зв’яжемося з тобою.";
       form.reset();
-      setTimeout(close, 1100);
+      close();
+      showThankYou("excursion");
     } catch (error) {
       status.textContent = error.message || "Не вдалося надіслати заявку.";
     } finally {
@@ -554,4 +605,56 @@ async function sendApplication(payload) {
   refresh();
   window.addEventListener("resize", refresh, { passive: true });
   if (document.fonts?.ready) document.fonts.ready.then(refresh);
+})();
+
+// Плаваюча кнопка повернення на початок сторінки.
+(() => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "back-to-top";
+  button.setAttribute("aria-label", "Повернутися на початок сторінки");
+  button.setAttribute("title", "Нагору");
+  button.innerHTML = `
+  <svg
+    width="20"
+    height="30"
+    viewBox="0 0 20 30"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M10 28V2M2.5 9.5L10 2L17.5 9.5"
+      stroke="currentColor"
+      stroke-width="1.15"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+`;
+  document.body.appendChild(button);
+
+  let scheduled = false;
+  const updateVisibility = () => {
+    const visible = window.scrollY > Math.max(500, window.innerHeight * 0.75);
+    button.classList.toggle("is-visible", visible);
+    button.tabIndex = visible ? 0 : -1;
+    scheduled = false;
+  };
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(updateVisibility);
+    },
+    { passive: true },
+  );
+  window.addEventListener("resize", updateVisibility);
+  button.addEventListener("click", () => {
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    window.scrollTo({ top: 0, behavior: reducedMotion ? "instant" : "smooth" });
+  });
+  updateVisibility();
 })();
