@@ -229,11 +229,58 @@ if (burger && panel) {
   update();
 })();
 
-// Booking form: configured directly in app.js, as requested.
-// WARNING: Both values will be publicly visible on GitHub Pages.
-// Browser requests to Telegram may be blocked by CORS; a server endpoint is required for reliable delivery.
-const BOT_TOKEN = "9059910072:AAGW3nYof3xT9Jo1qKFyrCi3mL9Enc6CDAQ";
-const CHAT_ID = "123456789";
+// Google Apps Script web app URL (/exec). Telegram credentials stay in Script Properties.
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxxwJhDyocmAoLEO9sBuQzY4khqep1QWrwYGnftRGT9HpvffnakhuXaVM7rVcJRQjf5VA/exec";
+
+// Apps Script receives a simple cross-origin POST, then we verify Telegram delivery
+// through a JSONP status lookup. Never claim success without confirmed status.
+async function sendApplication(payload) {
+  if (
+    !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(
+      APPS_SCRIPT_URL,
+    )
+  ) {
+    throw new Error("Спочатку встав URL Google Apps Script у app.js.");
+  }
+  const id = crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const data = new URLSearchParams({ ...payload, id, website: "" });
+  // Opaque response is NOT a delivery confirmation.
+  await fetch(APPS_SCRIPT_URL, { method: "POST", mode: "no-cors", body: data });
+  const deadline = Date.now() + 25000;
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+    const result = await new Promise((resolve, reject) => {
+      const callback = `__yuliiaStatus_${Math.random().toString(36).slice(2)}`;
+      const script = document.createElement("script");
+      const timer = setTimeout(
+        () => finish(null, new Error("Не вдалося перевірити статус")),
+        5000,
+      );
+      function finish(value, error) {
+        clearTimeout(timer);
+        script.remove();
+        delete window[callback];
+        if (error) reject(error);
+        else resolve(value);
+      }
+      window[callback] = (value) => finish(value);
+      script.onerror = () =>
+        finish(null, new Error("Не вдалося перевірити статус"));
+      script.src = `${APPS_SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=${callback}&_=${Date.now()}`;
+      document.head.appendChild(script);
+    });
+    if (result?.status === "sent") return;
+    if (result?.status === "error")
+      throw new Error("Telegram не прийняв заявку. Перевір налаштування бота.");
+  }
+  throw new Error(
+    "Не вдалося підтвердити доставку. Перевір Telegram перед повторною спробою.",
+  );
+}
+
 (() => {
   const triggers = [
     ...document.querySelectorAll(
@@ -326,11 +373,6 @@ const CHAT_ID = "123456789";
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
-    if (BOT_TOKEN.startsWith("ВСТАВ_") || CHAT_ID.startsWith("ВСТАВ_")) {
-      status.textContent =
-        "Додай BOT_TOKEN і CHAT_ID на початку блоку бронювання в app.js.";
-      return;
-    }
     const name = form.elements.name.value.trim();
     const phone = form.elements.phone.value.trim();
     if (name.length < 2 || !/^[+\d\s()\-]{9,25}$/.test(phone)) {
@@ -350,24 +392,19 @@ const CHAT_ID = "123456789";
         `Квитків: ${quantity}`,
         `Сума: ${money(amount)}`,
       ].join("\n");
-      const response = await fetch(
-        `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chat_id: CHAT_ID, text: message }),
-        },
-      );
-      if (!response.ok) throw new Error("Submission failed");
-      const result = await response.json();
-      if (!result.ok) throw new Error("Telegram rejected the message");
+      await sendApplication({
+        kind: "ticket",
+        name,
+        phone,
+        quantity: String(quantity),
+      });
       status.textContent =
         "Дякуємо! Заявку надіслано. Юлія зв’яжеться з тобою.";
       form.reset();
       updateTotal();
-    } catch {
-      status.textContent =
-        "Не вдалося підтвердити надсилання. Браузер може блокувати Telegram API (CORS). Спробуй пізніше або звернися до організаторки.";
+      setTimeout(close, 1100);
+    } catch (error) {
+      status.textContent = error.message || "Не вдалося надіслати заявку.";
     } finally {
       submit.disabled = false;
     }
@@ -447,10 +484,6 @@ const CHAT_ID = "123456789";
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!form.reportValidity()) return;
-    if (BOT_TOKEN.startsWith("ВСТАВ_") || CHAT_ID.startsWith("ВСТАВ_")) {
-      status.textContent = "Додай BOT_TOKEN і CHAT_ID в app.js.";
-      return;
-    }
     const firstName = form.elements.firstName.value.trim();
     const lastName = form.elements.lastName.value.trim();
     const phone = form.elements.phone.value.trim();
@@ -472,22 +505,12 @@ const CHAT_ID = "123456789";
     submit.disabled = true;
     status.textContent = "Надсилаємо заявку…";
     try {
-      const response = await fetch(
-        `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chat_id: CHAT_ID, text: message }),
-        },
-      );
-      if (!response.ok) throw new Error("Telegram HTTP error");
-      const result = await response.json();
-      if (!result.ok) throw new Error("Telegram API error");
+      await sendApplication({ kind: "excursion", firstName, lastName, phone });
       status.textContent = "Дякуємо! Заявку надіслано. Ми зв’яжемося з тобою.";
       form.reset();
-    } catch {
-      status.textContent =
-        "Не вдалося підтвердити надсилання. Браузер може блокувати Telegram API (CORS). Спробуй пізніше або звернися до організаторки.";
+      setTimeout(close, 1100);
+    } catch (error) {
+      status.textContent = error.message || "Не вдалося надіслати заявку.";
     } finally {
       submit.disabled = false;
     }
