@@ -3728,14 +3728,34 @@ body.booking-open {
 }
 
 /* Thank-you confirmation: only shown after a successfully delivered application. */
-.thank-you-modal__panel { width: min(100%, 690px); }
-.thank-you-modal__content { padding-top: 14px; }
-.thank-you-modal__content h2 { padding-right: 22px; margin-bottom: 24px; }
-.thank-you-modal__content p { font-size: 16px; line-height: 1.75; margin: 0 0 18px; }
-.thank-you-modal__content strong { font-weight: 700; }
-.thank-you-modal__content a { color: var(--olive); text-decoration: underline; overflow-wrap: anywhere; }
+.thank-you-modal__panel {
+  width: min(100%, 690px);
+}
+.thank-you-modal__content {
+  padding-top: 14px;
+}
+.thank-you-modal__content h2 {
+  padding-right: 22px;
+  margin-bottom: 24px;
+}
+.thank-you-modal__content p {
+  font-size: 16px;
+  line-height: 1.75;
+  margin: 0 0 18px;
+}
+.thank-you-modal__content strong {
+  font-weight: 700;
+}
+.thank-you-modal__content a {
+  color: var(--olive);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
 @media (max-width: 700px) {
-  .thank-you-modal__content p { font-size: 15px; line-height: 1.65; }
+  .thank-you-modal__content p {
+    font-size: 15px;
+    line-height: 1.65;
+  }
 }
 
 /* Повернення нагору — єдина нова навігаційна кнопка. */
@@ -3749,11 +3769,11 @@ body.booking-open {
   width: 54px;
   height: 54px;
   padding: 0;
-  border: 1px solid rgba(41, 43, 35, .2);
+  border: 1px solid rgba(41, 43, 35, 0.2);
   border-radius: 50%;
   background: var(--paper);
   color: var(--ink);
-  box-shadow: 0 8px 28px rgba(41, 43, 35, .12);
+  box-shadow: 0 8px 28px rgba(41, 43, 35, 0.12);
   font-size: 27px;
   line-height: 1;
   cursor: pointer;
@@ -3761,7 +3781,12 @@ body.booking-open {
   visibility: hidden;
   transform: translateY(12px);
   pointer-events: none;
-  transition: opacity .25s ease, transform .25s ease, visibility .25s ease, background .25s ease, color .25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease;
 }
 .back-to-top.is-visible {
   opacity: 1;
@@ -3769,13 +3794,27 @@ body.booking-open {
   transform: translateY(0);
   pointer-events: auto;
 }
-.back-to-top:hover { background: var(--olive); color: #fff; }
-.back-to-top:focus-visible { outline: 2px solid var(--olive); outline-offset: 4px; }
+.back-to-top:hover {
+  background: var(--olive);
+  color: #fff;
+}
+.back-to-top:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 4px;
+}
 @media (max-width: 700px) {
-  .back-to-top { right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); width: 48px; height: 48px; font-size: 24px; }
+  .back-to-top {
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(18px, env(safe-area-inset-bottom));
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .back-to-top { transition: none; }
+  .back-to-top {
+    transition: none;
+  }
 }
 
 /* Instagram button in excursion confirmation only. */
@@ -3792,14 +3831,48 @@ body.booking-open {
   text-decoration: none;
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: .035em;
-  transition: background .2s ease, transform .2s ease;
+  letter-spacing: 0.035em;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
-.thank-you-modal__instagram svg { flex-shrink: 0; }
+.thank-you-modal__instagram svg {
+  flex-shrink: 0;
+}
 .thank-you-modal__content a.thank-you-modal__instagram:hover {
   background: #344222;
   transform: translateY(-2px);
 }
 @media (max-width: 380px) {
-  .thank-you-modal__content a.thank-you-modal__instagram { padding: 14px 12px; gap: 9px; font-size: 12px; }
+  .thank-you-modal__content a.thank-you-modal__instagram {
+    padding: 14px 12px;
+    gap: 9px;
+    font-size: 12px;
+  }
+}
+
+/* Соціальні мережі у футері */
+.closing__socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.closing__socials .closing__instagram {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.closing__socials .closing__instagram svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .closing__socials {
+    gap: 16px 22px;
+  }
 }

@@ -422,7 +422,13 @@ const thankYouContent = {
     <p><strong>30 січня 2027 року | Київ</strong></p>
     <p>Попереду особливий день, нові знайомства, емоції та зустріч із жінками, які теж хочуть більшого від життя.</p>
     <p>До зустрічі! ❤️</p>
-    <p><strong>«Заведи своє життя» - почни з того, щоб обрати себе.</strong></p>`,
+    <p><strong>«Заведи своє життя» - почни з того, щоб обрати себе.</strong></p>
+		<p><strong>Можеш поки що підписатись на Юлію&nbsp;</strong></p>
+    <p><a class="thank-you-modal__instagram" href="https://www.instagram.com/yuliaublinskykh?mdxt=M2hpbXBsdmNlNGtl" target="_blank" rel="noopener noreferrer" aria-label="Підписатися на Юлію в Instagram">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.7" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      <span>Підписатися в Instagram</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+    </a></p>`,
   excursion: `
     <h2>Ти вже на крок ближче до знайомства! ❤️</h2>
     <p>Дякую за твою цікавість до авторської гри «Важливий крок»!</p>
