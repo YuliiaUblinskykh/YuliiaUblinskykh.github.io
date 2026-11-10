@@ -419,7 +419,7 @@ button {
     min-height: 290px;
   }
   .menu-panel nav a {
-    font-size: 24px;
+    font-size: 16px;
   }
   .hero {
     min-height: calc(100svh - var(--header-h));
