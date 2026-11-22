@@ -301,14 +301,14 @@ async function sendApplication(payload) {
       <p class="booking-modal__eyebrow">30 СІЧНЯ 2027 · КИЇВ</p>
       <h2 id="booking-title">НЕ ЧЕКАЙ.<br>ЗАБИРАЙ КВИТОК ЗАРАЗ.</h2>
       <p class="booking-modal__intro">Забронюй місце на «Заведи своє життя» за спеціальною ціною передпродажу.</p>
-      <div class="booking-modal__prices"><div><span>1 квиток</span><strong>1 200 грн</strong></div><div><span>Від 2 квитків · за один</span><strong>1 000 грн</strong></div></div>
-      <p class="booking-modal__hint">Після передпродажу — від 2 000 грн.</p>
+      <div class="booking-modal__prices"><div><span>1 квиток</span><strong>800 грн</strong></div><div><span>2 квитки · за один</span><strong>700 грн</strong></div><div><span>Від 3 квитків · за один</span><strong>700 грн</strong></div></div>
+      <p class="booking-modal__hint">🎁 Купуй від 3 квитків та отримуй ще 3 квитки в подарунок!</p>
       <p class="booking-modal__intro">Залиш контакти, щоб зафіксувати ціну. Юлія особисто зв’яжеться з тобою та допоможе оформити квиток.</p>
       <form class="booking-form" novalidate>
         <label>Твоє ім’я та прізвище <input name="name" type="text" autocomplete="name" minlength="2" maxlength="100" required placeholder="Твоє ім’я та прізвище"></label>
         <label>Номер телефону <input name="phone" type="tel" autocomplete="tel" inputmode="tel" minlength="9" maxlength="25" required placeholder="+380 ..."></label>
-        <label>Кількість квитків <select name="quantity" required>${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("")}</select></label>
-        <div class="booking-form__total"><span>До оплати після підтвердження</span><strong data-booking-total>1 200 грн</strong></div>
+        <label>Кількість квитків для покупки <select name="quantity" required>${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("")}</select></label>
+        <div class="booking-form__total"><span>До оплати після підтвердження</span><strong data-booking-total>800 грн</strong></div><p class="booking-modal__hint" data-booking-gift aria-live="polite"></p>
         <label class="booking-form__consent"><input name="consent" type="checkbox" required><span>Погоджуюся на обробку контактних даних для бронювання квитків.</span></label>
         <p class="booking-form__status" role="status" aria-live="polite"></p>
         <button type="submit" class="booking-form__submit">ЗАБРОНЮВАТИ МІСЦЕ <span class="long-arrow" aria-hidden="true"></span></button>
@@ -322,9 +322,14 @@ async function sendApplication(payload) {
   const total = modal.querySelector("[data-booking-total]");
   const money = (amount) =>
     new Intl.NumberFormat("uk-UA").format(amount) + " грн";
+  const ticketPrice = (quantity) => quantity === 1 ? 800 : 700;
+  const giftTickets = (quantity) => quantity >= 3 ? 3 : 0;
+  const giftInfo = modal.querySelector("[data-booking-gift]");
   const updateTotal = () => {
     const n = Number(qty.value);
-    total.textContent = money(n * (n >= 2 ? 1000 : 1200));
+    total.textContent = money(n * ticketPrice(n));
+    const gifts = giftTickets(n);
+    giftInfo.textContent = gifts ? `🎁 +${gifts} квитки в подарунок · усього ${n + gifts} квитків` : "";
   };
   qty.addEventListener("change", updateTotal);
   updateTotal();
@@ -383,13 +388,16 @@ async function sendApplication(payload) {
     submit.disabled = true;
     status.textContent = "Надсилаємо бронювання…";
     try {
-      const amount = quantity * (quantity >= 2 ? 1000 : 1200);
+      const amount = quantity * ticketPrice(quantity);
+      const gifts = giftTickets(quantity);
       const message = [
         "🎟 НОВЕ БРОНЮВАННЯ · Заведи своє життя",
         "30 січня 2027 · Київ",
         `Ім’я: ${name}`,
         `Телефон: ${phone}`,
-        `Квитків: ${quantity}`,
+        `Оплачених квитків: ${quantity}`,
+        `Подарункових квитків: ${gifts}`,
+        `Усього квитків: ${quantity + gifts}`,
         `Сума: ${money(amount)}`,
       ].join("\n");
       await sendApplication({
@@ -397,6 +405,9 @@ async function sendApplication(payload) {
         name,
         phone,
         quantity: String(quantity),
+        giftTickets: String(gifts),
+        totalTickets: String(quantity + gifts),
+        amount: String(amount),
       });
       form.reset();
       updateTotal();
