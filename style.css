@@ -3876,3 +3876,123 @@ body.booking-open {
     gap: 16px 22px;
   }
 }
+
+/* Public offer — shared site typography and palette */
+.closing__legal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.closing__offer-link {
+  font-size: 12px;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: inherit;
+}
+.closing__offer-link:hover {
+  color: #d5f08d;
+}
+.closing__footer-inner {
+  flex-wrap: wrap;
+  padding-block: 22px;
+}
+.offer-main {
+  max-width: 940px;
+  padding-block: clamp(45px, 7vw, 100px);
+}
+.offer-document {
+  overflow-wrap: anywhere;
+}
+.offer-document h1 {
+  font-family: UkrainianAdverGothic, Arial, sans-serif;
+  font-weight: 400;
+  font-size: clamp(24px, 4vw, 29px);
+  line-height: 1.55;
+  margin: 0 0 20px;
+  padding-bottom: 20px;
+}
+.offer-document h2 {
+  font-family: UkrainianAdverGothic, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 1.25;
+  margin: 20px 0 18px;
+  padding-top: 24px;
+  color: #43552d;
+}
+.offer-document p,
+.offer-document li {
+  font-size: 17px;
+  line-height: 1.8;
+  margin: 0 0 14px;
+}
+.offer-contacts {
+  padding-left: 24px;
+}
+.offer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+}
+.offer-back .long-arrow {
+  transform: rotate(180deg);
+  width: 34px;
+}
+.offer-back:hover {
+  color: #43552d;
+}
+.offer-back--bottom {
+  margin-top: 35px;
+  justify-content: flex-start;
+}
+.offer-back--bottom .long-arrow {
+  transform: rotate(180deg);
+}
+.offer-footer {
+  background: #293a1e;
+  color: #f8f5ed;
+}
+@media (max-width: 700px) {
+  .offer-document p,
+  .offer-document li {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .offer-page .brand {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .offer-page .brand-name {
+    font-size: clamp(18px, 5vw, 26px);
+  }
+  .offer-page .brand-event {
+    font-size: 10px;
+  }
+  .offer-page .header-inner {
+    gap: 10px;
+  }
+  .offer-back {
+    flex-shrink: 0;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .offer-back .long-arrow {
+    width: 20px;
+  }
+  .closing__legal {
+    align-items: center;
+  }
+}
+
+/* Clickable offer contacts */
+.offer-document .offer-contact-link {
+  color: #43552d;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+.offer-document .offer-contact-link:hover {
+  color: var(--olive);
+}
